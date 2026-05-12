@@ -1,0 +1,31 @@
+import { Router } from "express";
+import { atsController } from "../controllers/ats.controller.js";
+import { chatController } from "../controllers/chat.controller.js";
+import { dashboardController } from "../controllers/dashboard.controller.js";
+import { exportController } from "../controllers/export.controller.js";
+import { improvementController } from "../controllers/improvement.controller.js";
+import { jobController } from "../controllers/job.controller.js";
+import { resumeController } from "../controllers/resume.controller.js";
+import { authMiddleware } from "../middlewares/auth.middleware.js";
+import { uploadPdf } from "../middlewares/upload.middleware.js";
+import { validate } from "../middlewares/validate.middleware.js";
+import { chatSchema } from "../validators/chat.validator.js";
+import { createJobSchema, matchJobSchema } from "../validators/job.validator.js";
+import { asyncHandler } from "../utils/http.js";
+
+export const protectedRoutes = Router();
+protectedRoutes.use(authMiddleware);
+
+protectedRoutes.get("/dashboard", asyncHandler(dashboardController.get));
+protectedRoutes.post("/resumes/upload", uploadPdf.single("file"), asyncHandler(resumeController.upload));
+protectedRoutes.get("/resumes", asyncHandler(resumeController.list));
+protectedRoutes.get("/resumes/:id", asyncHandler(resumeController.get));
+protectedRoutes.post("/ats/:resumeId/analyze", asyncHandler(atsController.analyze));
+protectedRoutes.post("/jobs", validate(createJobSchema), asyncHandler(jobController.create));
+protectedRoutes.get("/jobs", asyncHandler(jobController.list));
+protectedRoutes.post("/jobs/:jobId/match/:resumeId", validate(matchJobSchema), asyncHandler(jobController.match));
+protectedRoutes.post("/improvements/:resumeId", asyncHandler(improvementController.improve));
+protectedRoutes.get("/chats", asyncHandler(chatController.list));
+protectedRoutes.post("/chat", validate(chatSchema), asyncHandler(chatController.ask));
+protectedRoutes.get("/export/resumes/:resumeId.pdf", asyncHandler(exportController.pdf));
+protectedRoutes.get("/export/resumes/:resumeId.docx", asyncHandler(exportController.docx));

@@ -1,0 +1,132 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                 String           @id @default(cuid())
+  name               String
+  email              String           @unique
+  passwordHash       String
+  refreshTokenHash   String?          @db.Text
+  resetTokenHash     String?
+  resetTokenExpires  DateTime?
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+  resumes            Resume[]
+  jobDescriptions    JobDescription[]
+  chats              Chat[]
+
+  @@map("users")
+}
+
+model Resume {
+  id                  String          @id @default(cuid())
+  userId              String
+  title               String
+  fileName            String
+  filePath            String
+  rawText             String          @db.LongText
+  cleanedText         String          @db.LongText
+  candidateName       String?
+  summary             String?         @db.Text
+  experiences         Json
+  skills              Json
+  education           Json
+  languages           Json
+  optimizedText       String?         @db.LongText
+  embedding           Json
+  createdAt           DateTime        @default(now())
+  updatedAt           DateTime        @updatedAt
+  user                User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  atsAnalyses         AtsAnalysis[]
+  matches             JobMatch[]
+
+  @@index([userId])
+  @@map("resumes")
+}
+
+model JobDescription {
+  id            String     @id @default(cuid())
+  userId        String
+  title         String
+  company       String?
+  description   String     @db.LongText
+  skills        Json
+  embedding     Json
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  user          User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  matches       JobMatch[]
+
+  @@index([userId])
+  @@map("job_descriptions")
+}
+
+model AtsAnalysis {
+  id               String   @id @default(cuid())
+  resumeId         String
+  score            Int
+  clarityScore     Int
+  impactScore      Int
+  formattingScore  Int
+  keywordScore     Int
+  missingKeywords  Json
+  strengths        Json
+  issues           Json
+  suggestions      Json
+  report           Json
+  createdAt        DateTime @default(now())
+  resume           Resume   @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+
+  @@index([resumeId])
+  @@map("ats_analysis")
+}
+
+model JobMatch {
+  id              String         @id @default(cuid())
+  resumeId        String
+  jobId           String
+  matchScore      Int
+  semanticScore   Int
+  keywordScore    Int
+  missingSkills   Json
+  matchedSkills   Json
+  report          Json
+  createdAt       DateTime       @default(now())
+  resume          Resume         @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+  jobDescription  JobDescription @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  @@index([resumeId])
+  @@index([jobId])
+  @@map("job_matches")
+}
+
+model Chat {
+  id        String    @id @default(cuid())
+  userId    String
+  title     String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages  Message[]
+
+  @@index([userId])
+  @@map("chats")
+}
+
+model Message {
+  id        String   @id @default(cuid())
+  chatId    String
+  role      String
+  content   String   @db.LongText
+  createdAt DateTime @default(now())
+  chat      Chat     @relation(fields: [chatId], references: [id], onDelete: Cascade)
+
+  @@index([chatId])
+  @@map("messages")
+}

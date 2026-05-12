@@ -1,0 +1,39 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: 210 30% 98%;
+  --foreground: 220 28% 8%;
+  --card: 0 0% 100%;
+  --muted: 214 18% 92%;
+  --border: 214 24% 86%;
+  --primary: 174 70% 35%;
+  --accent: 16 80% 55%;
+}
+
+.dark {
+  --background: 222 28% 7%;
+  --foreground: 210 24% 96%;
+  --card: 220 24% 10%;
+  --muted: 220 18% 16%;
+  --border: 218 18% 22%;
+  --primary: 174 64% 48%;
+  --accent: 16 88% 62%;
+}
+
+* {
+  border-color: hsl(var(--border));
+}
+
+body {
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
+}
+
+.mesh {
+  background:
+    radial-gradient(circle at 20% 10%, rgba(45, 212, 191, 0.18), transparent 34%),
+    radial-gradient(circle at 80% 0%, rgba(251, 146, 60, 0.12), transparent 30%),
+    linear-gradient(180deg, hsl(var(--background)), hsl(var(--background)));
+}
