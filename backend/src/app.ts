@@ -11,12 +11,23 @@ import { routes } from "./routes/index.js";
 export const app = express();
 
 app.use(helmet());
-app.use(cors({ origin: env.FRONTEND_URL, credentials: true }));
+
+app.use(cors({
+  origin: [
+    "http://localhost:3000",
+    "https://curriculos-lresgccna-heitorbarrosjs-projects.vercel.app"
+  ],
+  credentials: true
+}));
+
 app.use(compression());
 app.use(express.json({ limit: "2mb" }));
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan(env.NODE_ENV === "production" ? "combined" : "dev"));
+
 app.use(apiRateLimit);
+
 app.use("/api", routes);
+
 app.use(notFoundHandler);
 app.use(errorHandler);
