@@ -28,6 +28,15 @@ app.use(morgan(env.NODE_ENV === "production" ? "combined" : "dev"));
 
 app.use(apiRateLimit);
 
+
+app.get("/", (_req, res) => {
+  res.send("API online");
+});
+
+app.get("/api", (_req, res) => {
+  res.send("API funcionando");
+});
+
 app.use("/api", routes);
 
 app.use(notFoundHandler);
